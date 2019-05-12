@@ -10,7 +10,7 @@ function help {
 
 cat << _HELP_
 Pomodora.sh is a script that you can use to track your work easier and make you more productive.
-To stop the timer without saving any logs, pres ctrl+c.
+To stop the timer without saving the current log, pres ctrl+c.
 
 Usage:
 pomodora.sh [OPTION] [task_name]
@@ -24,7 +24,7 @@ Flags:
 _HELP_
 }
 
-# Check to make sure that this script isnt run as root
+# Check to make sure that this script isn't run as root
 function user_check_function {
 	if [[ $SUDO_USER != "" ]]
 	then
@@ -132,7 +132,7 @@ shift $(( OPTIND -1 ))
 
 #START OF SCRIPT
 description="Other"	#The default description
-user_check_function	#Check that user isnt root
+user_check_function	#Check that user isn't root
 logcheck_function	#Check if a log exists
 #task_function
 nexttask="a break"
