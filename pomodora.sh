@@ -3,6 +3,9 @@
 # Kevin Mostert
 # 11/05/2019
 
+# Set your own custom *.wav notification sound here
+customwav=/home/"$USER"/Music/wav/1042.wav
+taskname="$1"
 # FUNCTIONS:
 
 # Help Function
@@ -11,6 +14,7 @@ function help {
 cat << _HELP_
 Pomodora.sh is a script that you can use to track your work easier and make you more productive.
 To stop the timer without saving the current log, pres ctrl+c.
+A custom *.wav sound can be set on line 7 in the script.
 
 Usage:
 pomodora.sh [OPTION] [task_name]
@@ -44,11 +48,11 @@ function logcheck_function {
 
 # Check if a task has been defined
 function task_function {
-	if [[ "$1" == "" ]]
+	if [[ "$taskname" == "" ]]
 	then
 		description="Other"
 	else
-		description="$1"
+		description="$taskname"
 	fi
 }
 
@@ -93,6 +97,7 @@ function timer_function {
                 (( hour=hour-1 ))
         # end hour loop
         done
+/usr/bin/aplay "$customwav"
 }
 
 # Prompt the user that the timer is up
@@ -107,22 +112,39 @@ function prompt_function {
 		fi
 }
 
+#function clear_log {
+#	if [[ -f /home/"$USER"/pomodora.log ]]
+#	then
+#		rm /home/"$USER"/pomodora.log
+#		echo /home/"$USER"/pomodora.log has been removed.
+#	else
+#		echo "It doesn't seem like you have a log file in /home/$USER/"
+#	fi
+#}
+
 function clear_log {
-	if [[ -f /home/"$USER"/pomodora.log ]]
-	then
-		rm /home/"$USER"/pomodora.log
-		echo /home/"$USER"/pomodora.log has been removed.
-	else
-		echo "It doesn't seem like you have a log file in /home/$USER/"
-	fi
+	read -r -p "This will remove the log, are you sure? [Y/N]: " response
+		if [[ "$response" =~ [yY(es)] ]]
+		then
+			if [[ -f /home/"$USER"/pomodora.log ]]
+			then
+				rm /home/"$USER"/pomodora.log
+				echo /home/"$USER"/pomodora.log has been removed.
+			else
+				echo "It doesn't seem like you have a log file in /home/$USER/"
+			fi
+		else
+			echo "Log was preserved"
+		fi
 }
+
 # FLAG OPTIONS
 #has_c_option=false
 while getopts :hct: opt; do
         case $opt in
                 h) help; exit;; #echo "Backup and compress files, skip compression with -n flag and restore with the -r flag."; exit;;
                 c) clear_log; exit 1 ;;
-                t) description="$2";echo $2 ;;
+                t) description="$2";;
                  :) echo "Missing argument for option -$OPTARG";echo "pomodora.sh -t <task_name>"; exit 1;;
                 \?) echo "Unknown option -$OPTARG"; help; exit 1;;
         esac
@@ -134,14 +156,14 @@ shift $(( OPTIND -1 ))
 description="Other"	#The default description
 user_check_function	#Check that user isn't root
 logcheck_function	#Check if a log exists
-#task_function
+task_function
 nexttask="a break"
 # Task begins
 begindate="$(date)"	#Log start time
 reset_function
 #hour=00
 min=25
-#sec=00
+#sec=5
 timer_function
 notify-send "Pomodora completed:" "Time for a break!"
 prompt_function
@@ -152,7 +174,7 @@ nexttask="work"
 reset_function
 #hour=00
 min=5
-#sec=00
+#sec=3
 timer_function
 notify-send "Break is up:" "Time to work!"
 prompt_function
